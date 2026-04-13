@@ -22,9 +22,6 @@ from airflow.utils.trigger_rule import TriggerRule
 
 logger = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
 
 def _get_semaine(context):
     """Retourne la semaine ISO au format YYYY-SXX depuis le contexte Airflow."""
@@ -39,9 +36,9 @@ def _get_chemins(semaine):
     return annee, num_sem, base
 
 
-# ---------------------------------------------------------------------------
+
 # Paramètres du DAG
-# ---------------------------------------------------------------------------
+
 
 default_args = {
     "owner": "ars-occitanie",
@@ -64,9 +61,9 @@ with DAG(
     tags=["sante-publique", "epidemio", "occitanie"],
 ) as dag:
 
-    # -----------------------------------------------------------------------
+    
     # Étape 3 — Init base de données
-    # -----------------------------------------------------------------------
+   
     init_base_donnees = PostgresOperator(
         task_id="init_base_donnees",
         postgres_conn_id="postgres_ars",
@@ -74,9 +71,9 @@ with DAG(
         autocommit=True,
     )
 
-    # -----------------------------------------------------------------------
+ 
     # Étape 4 — Collecte IAS
-    # -----------------------------------------------------------------------
+ 
     with TaskGroup("collecte") as tg_collecte:
 
         def collecter_donnees_ias(**context):
@@ -110,9 +107,9 @@ with DAG(
             provide_context=True,
         )
 
-    # -----------------------------------------------------------------------
+   
     # Étape 5 — Archivage et vérification
-    # -----------------------------------------------------------------------
+    
     with TaskGroup("persistance_brute") as tg_archive:
 
         def archiver_local(**context):
@@ -160,9 +157,8 @@ with DAG(
 
         archiver >> verifier
 
-    # -----------------------------------------------------------------------
     # Étape 6 — Calcul des indicateurs
-    # -----------------------------------------------------------------------
+
     with TaskGroup("traitement") as tg_traitement:
 
         def calculer_indicateurs_epidemiques(**context):
@@ -226,9 +222,8 @@ with DAG(
             provide_context=True,
         )
 
-    # -----------------------------------------------------------------------
+   
     # Étape 7 — Persistance PostgreSQL
-    # -----------------------------------------------------------------------
     with TaskGroup("persistance_operationnelle") as tg_persistance:
 
         def inserer_donnees_postgres(**context):
@@ -303,10 +298,8 @@ with DAG(
             provide_context=True,
         )
 
-    # -----------------------------------------------------------------------
     # Étape 8 — Branchement épidémique
-    # -----------------------------------------------------------------------
-
+   
     def evaluer_situation_epidemique(**context):
         """Lit les indicateurs depuis PostgreSQL et choisit la branche."""
         semaine = _get_semaine(context)
@@ -376,9 +369,7 @@ with DAG(
         provide_context=True,
     )
 
-    # -----------------------------------------------------------------------
     # Étape 9 — Rapport hebdomadaire
-    # -----------------------------------------------------------------------
 
     def generer_rapport_hebdomadaire(**context):
         """Génère le rapport JSON, le sauvegarde et l'insère en base."""
@@ -488,9 +479,7 @@ with DAG(
         trigger_rule=TriggerRule.NONE_FAILED_MIN_ONE_SUCCESS,
     )
 
-    # -----------------------------------------------------------------------
-    # Dépendances
-    # -----------------------------------------------------------------------
+
     (
         init_base_donnees
         >> tg_collecte
