@@ -34,7 +34,6 @@ SAISONS_COLS = [
 
 
 def get_semaine_iso(reference_date=None):
-    # type: (Optional[date]) -> str
     """Retourne la semaine ISO au format YYYY-SXX."""
     if reference_date is None:
         reference_date = date.today()
@@ -43,7 +42,6 @@ def get_semaine_iso(reference_date=None):
 
 
 def telecharger_csv_ias(url):
-    # type: (str) -> List[Dict]
     """Télécharge et parse un CSV IAS depuis data.gouv.fr."""
     logger.info("Téléchargement : {}".format(url))
     response = requests.get(url, timeout=60)
@@ -65,7 +63,7 @@ def telecharger_csv_ias(url):
 
 
 def filtrer_semaine(rows, semaine):
-    # type: (List[Dict], str) -> List[Dict]
+
     """Filtre les lignes correspondant à la semaine ISO demandée."""
     annee_cible = int(semaine[:4])
     num_sem_cible = int(semaine[6:])
@@ -88,7 +86,6 @@ def filtrer_semaine(rows, semaine):
 
 
 def agreger_semaine(rows, syndrome, semaine):
-    # type: (List[Dict], str, str) -> Dict
     """Agrège les lignes d'une semaine en une valeur IAS hebdomadaire."""
     valeurs_ias = []
     min_saison_vals = []

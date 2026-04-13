@@ -31,8 +31,6 @@ DUREE_INFECTIEUSE = {
 
 
 def calculer_zscore(valeur_actuelle, historique):
-    # type: (float, List) -> Optional[float]
-    """Calcule le z-score par rapport aux saisons historiques."""
     valeurs_valides = [v for v in historique if v is not None]
     if len(valeurs_valides) < 3:
         logger.warning("Historique insuffisant ({} saisons)".format(len(valeurs_valides)))
@@ -48,8 +46,6 @@ def calculer_zscore(valeur_actuelle, historique):
 
 
 def classifier_statut_ias(valeur_ias, seuil_min, seuil_max):
-    # type: (float, Optional[float], Optional[float]) -> str
-    """Classifie selon les seuils MIN/MAX du dataset IAS."""
     if seuil_max is not None and valeur_ias >= seuil_max:
         return "URGENCE"
     if seuil_min is not None and valeur_ias >= seuil_min:
@@ -58,8 +54,6 @@ def classifier_statut_ias(valeur_ias, seuil_min, seuil_max):
 
 
 def classifier_statut_zscore(z_score, seuil_alerte_z=1.5, seuil_urgence_z=3.0):
-    # type: (Optional[float], float, float) -> str
-    """Classifie selon le z-score."""
     if z_score is None:
         return "NORMAL"
     if z_score >= seuil_urgence_z:
@@ -70,8 +64,7 @@ def classifier_statut_zscore(z_score, seuil_alerte_z=1.5, seuil_urgence_z=3.0):
 
 
 def classifier_statut_final(statut_ias, statut_zscore):
-    # type: (str, str) -> str
-    """Retient le niveau le plus sévère entre les deux critères."""
+
     if "URGENCE" in (statut_ias, statut_zscore):
         return "URGENCE"
     if "ALERTE" in (statut_ias, statut_zscore):
@@ -80,8 +73,7 @@ def classifier_statut_final(statut_ias, statut_zscore):
 
 
 def calculer_r0_simplifie(series_hebdomadaire, duree_infectieuse=5):
-    # type: (List, int) -> Optional[float]
-    """Estimation du R0 par taux de croissance moyen."""
+
     series_valides = [v for v in series_hebdomadaire if v is not None and v > 0]
     if len(series_valides) < 2:
         return None
@@ -98,12 +90,8 @@ def calculer_r0_simplifie(series_hebdomadaire, duree_infectieuse=5):
 
 
 def calculer_indicateurs(donnees_semaine, series_historiques, seuil_alerte_z=1.5, seuil_urgence_z=3.0):
-    # type: (Dict, Dict, float, float) -> Dict
-    """
-    Calcule l'ensemble des indicateurs pour un syndrome donné.
-    donnees_semaine : dict issu de agreger_semaine()
-    series_historiques : {syndrome: [val_s-4, ..., val_s-1]}
-    """
+ 
+
     syndrome = donnees_semaine["syndrome"]
     valeur_ias = donnees_semaine.get("valeur_ias")
 
